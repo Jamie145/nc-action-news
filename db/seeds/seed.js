@@ -1,4 +1,6 @@
 const db = require("../connection")
+const format = require("pg-format");
+
 
 const seed = ({ topicData, userData, articleData, commentData }) => {
   return db.query('DROP TABLE IF EXISTS comments;')
@@ -13,7 +15,7 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
   return db.query('DROP TABLE IF EXISTS topics')
   .then (()=>{
     console.log("DROPPED TOPICS TABLE")
-    return createTopics(topicData)
+    return createTopics()
   })
   .then (()=> {
     return createUsers()
@@ -23,6 +25,12 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
   })
   .then(()=>{
     return createComments()
+  })
+  .then(()=>{
+    return insertTopics(topicData)
+  })
+  .then(() => {
+    console.log("Inserted topics successfully!");
   })
       })
     })
@@ -47,7 +55,7 @@ function createComments(){
   return db.query ('CREATE TABLE comments(comment_id SERIAL PRIMARY KEY, article_id INT REFERENCES articles(article_id), body TEXT, votes INT DEFAULT 0, author VARCHAR REFERENCES users(username), created_at TIMESTAMP )');
 }
 
-function insertTopics(userData,topicData){
+function insertTopics(topicData){
   // fIrst to format our data. Use .map to return our array of arrays. we prepare the data
 
 const topicFormat = topicData.map((row)=>{
@@ -55,7 +63,7 @@ const topicFormat = topicData.map((row)=>{
 })
     
   //create our query string pg.format(SQL template format string, array of arrays - each sub array reps 1 row). we build the query string
-  const queryString = pg.format('INSERT INTO topics (slug, description, img_url)VALUES %L',topicFormat )
+  const queryString = format('INSERT INTO topics (slug, description, img_url)VALUES %L',topicFormat )
   //query the database (db.query). we query the database
   return db.query(queryString)
   //pg.format
