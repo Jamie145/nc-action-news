@@ -1,5 +1,6 @@
 const db = require("../connection")
 const format = require("pg-format");
+const {convertTimestampToDate} = require("./utils")
 
 
 const seed = ({ topicData, userData, articleData, commentData }) => {
@@ -31,6 +32,10 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
   })
   .then(() => {
     console.log("Inserted topics successfully!");
+  }).then(()=>{
+    insertUsers(userData)
+  }).then(()=>{
+    return insertArticles(articleData)
   })
       })
     })
@@ -44,7 +49,7 @@ function createArticles(){
 }
 
 function createUsers(){
-  return db.query('CREATE TABLE users(username VARCHAR(20) PRIMARY KEY, name VARCHAR(30), avatar_url VARCHAR(1000))');
+  return db.query('CREATE TABLE users(username VARCHAR(40) PRIMARY KEY, name VARCHAR(30), avatar_url VARCHAR(1000))');
 }
 
 function createTopics(){
@@ -52,7 +57,7 @@ function createTopics(){
 }
 
 function createComments(){
-  return db.query ('CREATE TABLE comments(comment_id SERIAL PRIMARY KEY, article_id INT REFERENCES articles(article_id), body TEXT, votes INT DEFAULT 0, author VARCHAR REFERENCES users(username), created_at TIMESTAMP )');
+  return db.query ('CREATE TABLE comments(comment_id SERIAL PRIMARY KEY, article_id INT REFERENCES articles(article_id), body TEXT, votes INT DEFAULT 0, author VARCHAR(40) REFERENCES users(username), created_at TIMESTAMP )');
 }
 
 function insertTopics(topicData){
@@ -63,18 +68,41 @@ const topicFormat = topicData.map((row)=>{
 })
     
   //create our query string pg.format(SQL template format string, array of arrays - each sub array reps 1 row). we build the query string
-  const queryString = format('INSERT INTO topics (slug, description, img_url)VALUES %L',topicFormat )
+  const queryString = format('INSERT INTO topics (slug, description, img_url) VALUES %L',topicFormat )
   //query the database (db.query). we query the database
   return db.query(queryString)
   //pg.format
 
 }
 function insertUsers(userData){
+  const userFormat = userData.map((row)=>{
+    return [row.username, row.name,row.avatar_url]
+  })
 
+  const queryString = format ('INSERT INTO users (username, name, avatar_url) VALUES %L', userFormat)
+
+  //console.log("User Data Before Insertion:", userData);
+
+  return db.query(queryString)
 }
 function insertArticles(articleData, userData, topicData){
+  const articleFormat = articleData.map((article) =>{
+    return [
+      article.title,
+      article.topic, // foreign key should match primary key slug 
+      article.author, // author should match username in users
+      article.body,
+      convertTimestampToDate(article).created_at, // Convert timestamp to a proper date
+      article.votes,
+      article.article_img_url
+    ];
+  })
+  const queryString = format ('INSERT INTO articles (title,topic,author,body,created_at,votes,article_img_url) VALUES %L', articleFormat)
 
+  return db.query(queryString)
 }
+
+
 
 module.exports = seed;
 
