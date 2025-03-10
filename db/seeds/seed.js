@@ -36,6 +36,29 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
     insertUsers(userData)
   }).then(()=>{
     return insertArticles(articleData)
+  }).then(({rows})=>{
+    console.log(rows)
+    const lookUpArticleId = {}
+    rows.forEach(row =>{
+      lookUpArticleId[row.title] = row.article_id
+
+    })
+    const commentsFormat = commentData.map((comment) =>{
+      return [
+        lookUpArticleId[comment.article_title],
+        comment.body,
+        comment.votes,
+        comment.author,
+        new Date(comment.created_at)
+         
+
+      ];
+    })
+    const queryString = format ('INSERT INTO comments (article_id,body,votes,author,created_at) VALUES %L RETURNING *' , commentsFormat)
+  
+    return db.query(queryString)
+      
+
   })
       })
     })
@@ -44,7 +67,7 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
 
 
 function createArticles(){
-  return db.query('CREATE TABLE articles(article_id SERIAL PRIMARY KEY, title VARCHAR(20), topic VARCHAR(40) REFERENCES topics(slug), author VARCHAR(40) REFERENCES users(username), body TEXT, created_at timestamp without time zone , votes INT DEFAULT 0, article_img_url VARCHAR(1000))');
+  return db.query('CREATE TABLE articles(article_id SERIAL PRIMARY KEY, title VARCHAR(200), topic VARCHAR(40) REFERENCES topics(slug), author VARCHAR(40) REFERENCES users(username), body TEXT, created_at timestamp without time zone , votes INT DEFAULT 0, article_img_url VARCHAR(1000))');
 
 }
 
@@ -93,11 +116,11 @@ function insertArticles(articleData, userData, topicData){
       article.author, // author should match username in users
       article.body,
       convertTimestampToDate(article).created_at, // Convert timestamp to a proper date
-      article.votes,
+      article.votes || 0,
       article.article_img_url
     ];
   })
-  const queryString = format ('INSERT INTO articles (title,topic,author,body,created_at,votes,article_img_url) VALUES %L', articleFormat)
+  const queryString = format ('INSERT INTO articles (title,topic,author,body,created_at,votes,article_img_url) VALUES %L RETURNING *' , articleFormat)
 
   return db.query(queryString)
 }
