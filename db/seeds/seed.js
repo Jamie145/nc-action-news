@@ -33,7 +33,7 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
   .then(() => {
     console.log("Inserted topics successfully!");
   }).then(()=>{
-    insertUsers(userData)
+    return insertUsers(userData)
   }).then(()=>{
     return insertArticles(articleData)
   }).then(({rows})=>{

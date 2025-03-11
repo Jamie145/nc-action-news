@@ -35,14 +35,11 @@ describe("GET /api/topics", () =>{
     .expect(200)
     .then(({body: {topics } })=> {
       expect(topics.length).toBeGreaterThan(0)
+      expect(topics.length).toBe(3)
       expect(Array.isArray(topics)).toBe(true)
-      body.topics.forEach((topic) =>{
+      topics.forEach((topic) =>{
         expect(typeof topic.slug).toBe('string')
         expect(typeof topic.description).toBe('string')
-
-      
-      //expect(topics[0]).toBe("slug": "football")
-      //expect(topics[1].toBe(description: "Footie!")
       
       }) 
     })
