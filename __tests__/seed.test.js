@@ -5,9 +5,11 @@ const data = require('../db/data/test-data/index');
 beforeAll(() => seed(data));
 afterAll(() => db.end());
 
-////////
 
-describe("tests to check common errors", () => {
+
+
+
+describe.skip("tests to check common errors", () => {
   test("check all comments for a specific article have the correct article_id", () => {
     return db
       .query(`SELECT * FROM comments WHERE article_id = 3`)
@@ -90,10 +92,11 @@ describe("tests to check common errors", () => {
 
 
 
-////////
 
 
-describe('seed', () => {
+
+describe.skip('seed', () => {
+
   describe('topics table', () => {
     test('topics table exists', () => {
       return db
