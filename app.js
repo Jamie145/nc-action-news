@@ -1,5 +1,5 @@
 const express = require('express')
-
+const {getArticleByID} = require('./controllers/article.controller')
 const { getTopics } = require('./controllers/topics.controller');
 const app = express()
 const endpoints = require ('./endpoints.json'); 
@@ -15,9 +15,14 @@ app.get("/api",(request, response)=>{
 
 app.get("/api/topics", getTopics);
 
+app.get("/api/articles/:article_id", getArticleByID);
+
 app.all("*", nonEndPoint)
 app.use((err,request,response,next) =>{
-    response.status(500).send({msg: "internal server error"})
+    if(err.status && err.msg){
+    response.status(err.status).send({message: err.msg})
+    }
+    else response.status(500).send({ msg: "Internal Server Error" });
 })
 
 

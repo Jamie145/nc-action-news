@@ -19,7 +19,7 @@ afterAll(()=> {
 /* Set up your beforeEach & afterAll functions here */
 
 describe("GET /api", () => {
-  test.skip("200: Responds with an object detailing the documentation for each endpoint", () => {
+  test("200: Responds with an object detailing the documentation for each endpoint", () => {
     return request(app)
       .get("/api")
       .expect(200)
@@ -44,4 +44,33 @@ describe("GET /api/topics", () =>{
       }) 
     })
   })
+})
+describe('GET /api/articles/:article_id', () =>{
+  test('Responds with an article object contaiing properties',() =>{
+    return request(app)
+    .get("/api/articles/3")
+    .expect(200)
+    .then(({body: {article}}) =>{
+      expect(article).toBeDefined();
+      expect(article.article_id).toBe(3)
+      expect(article).toHaveProperty('author');
+      expect(article).toHaveProperty('title');
+      expect(article).toHaveProperty('article_id');
+      expect(article).toHaveProperty('body');
+      expect(article).toHaveProperty('topic');
+      expect(article).toHaveProperty('created_at');
+      expect(article).toHaveProperty('votes');
+      expect(article).toHaveProperty('article_img_url');
+
+    })
+  } )
+  test('responds with 404 when article is not found', () => {
+    return request(app)
+      .get('/api/articles/99') 
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.message).toBe('Article not found');
+      });
+  });
+
 })
