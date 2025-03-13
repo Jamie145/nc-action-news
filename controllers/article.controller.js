@@ -1,8 +1,13 @@
-const { fetchArticles } = require('../models/articles.models');
+const { fetchArticles, fetchArticleById } = require('../models/articles.models');
 
 exports.getArticleByID = (request, response, next) =>{
     const {article_id} = request.params
-    fetchArticles(article_id)
+
+    if (isNaN(article_id)) {
+        return next({ status: 400, msg: 'Bad Request' });
+      }
+
+    fetchArticleById(article_id)
     
     .then((article) =>{
         response.status(200).send({article})
@@ -10,4 +15,15 @@ exports.getArticleByID = (request, response, next) =>{
         next(err)
       })
     
+}
+exports.getArticles = (request, response, next) =>{
+ 
+    fetchArticles()
+    .then((rows) =>{
+        response.status(200).send({ articles: rows });
+    }).catch((err) =>{
+        next(err)
+    })
+    
+
 }

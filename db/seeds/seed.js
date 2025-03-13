@@ -37,7 +37,7 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
   }).then(()=>{
     return insertArticles(articleData)
   }).then(({rows})=>{
-    console.log(rows)
+    
     const lookUpArticleId = {}
     rows.forEach(row =>{
       lookUpArticleId[row.title] = row.article_id
