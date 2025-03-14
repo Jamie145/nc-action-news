@@ -1,4 +1,4 @@
-const { fetchArticles, fetchArticleById } = require('../models/articles.models');
+const { fetchArticles, fetchArticleById, fetchArticleComments } = require('../models/articles.models');
 
 exports.getArticleByID = (request, response, next) =>{
     const {article_id} = request.params
@@ -26,4 +26,19 @@ exports.getArticles = (request, response, next) =>{
     })
     
 
+}
+
+exports.getArticleComment = (request, response, next) =>{
+    const {article_id} = request.params
+
+    if (isNaN(article_id)) {
+        return next({ status: 400, msg: 'Bad Request' });
+      }
+
+    fetchArticleComments(article_id)
+    .then((comment) =>{
+        response.status(200).send({comment})
+    }).catch((err) =>{
+        next(err)
+    })
 }

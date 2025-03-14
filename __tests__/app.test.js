@@ -5,6 +5,7 @@ const seed = require('../db/seeds/seed')
 const request = require("supertest");
 const data = require("../db/data/test-data");
 const app = require("../app");
+const { get } = require("../app");
 /* Set up your test imports here */
 
 beforeEach(() => {
@@ -90,7 +91,6 @@ describe('Get all articles', () => {
               .expect(200)
               .then(({ body }) => {
                   expect(body.articles.length).toBeGreaterThan(0); 
-                  expect(Array.isArray(body.articles)).toBe(true); 
                   body.articles.forEach((article) => {
                       expect(article).toHaveProperty('author');
                       expect(article).toHaveProperty('title');
@@ -101,6 +101,7 @@ describe('Get all articles', () => {
                       expect(article).toHaveProperty('article_img_url')
                       expect(article).toHaveProperty('comment_count');
                   }); 
+                  expect(body.articles).toBeSorted({ descending: true });
               });
       });
       test('for errors', ()=>{
@@ -113,3 +114,30 @@ describe('Get all articles', () => {
       })
   });
 });
+describe.only("Get all comments for chosen article", () =>{
+  test('respond with all article comments', () =>{
+    return request(app)
+    .get('/api/articles/1/comments')
+    .expect(200)
+    .then(({body}) =>{
+      console.log(body)
+      body.comment.forEach((comment) =>{
+        expect(comment).toHaveProperty('comment_id')
+        expect(comment).toHaveProperty('body')
+        expect(comment).toHaveProperty('votes')
+        expect(comment).toHaveProperty('author')
+        expect(comment).toHaveProperty('created_at')
+        expect(comment).toHaveProperty('article_id')
+      })
+      expect(body.comment).toBeSorted({ descending: true });
+    })
+  })
+  test('for errors when article does not exist', () =>{
+    return request(app)
+    .get('/api/articles/100/comments')
+    .expect(404)
+    .then(({body}) =>{
+      expect(body.message).toBe('Article not found')
+    })
+  })
+})
