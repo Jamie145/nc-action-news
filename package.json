@@ -5,10 +5,12 @@
   "main": "listen.js",
   "scripts": {
     "setup-dbs": "psql -f ./db/setup-dbs.sql",
+    "seed": "node ./db/seeds/run-seed.js",
+    "seed-prod": "NODE_ENV=production npm run seed",
     "seed-dev": "node ./db/seeds/run-seed.js",
     "test": "jest",
     "prepare": "husky install",
-    "start": "node listen.js",
+    "start": "node app_listen.js",
     "test-seed": "jest seed.test.js"
   },
   "repository": {
@@ -23,7 +25,6 @@
   },
   "homepage": "https://github.com/northcoders/be-nc-news#readme",
   "devDependencies": {
-    "husky": "^8.0.2",
     "jest": "^27.5.1",
     "jest-extended": "^2.0.0",
     "jest-sorted": "^1.0.15"
@@ -33,7 +34,8 @@
     "express": "^4.21.2",
     "pg": "^8.13.3",
     "pg-format": "^1.0.4",
-    "supertest": "^7.0.0"
+    "supertest": "^7.0.0",
+    "husky": "^8.0.2"
   },
   "jest": {
     "setupFilesAfterEnv": [
