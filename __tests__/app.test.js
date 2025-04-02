@@ -5,12 +5,11 @@ const seed = require('../db/seeds/seed')
 const request = require("supertest");
 const data = require("../db/data/test-data");
 const app = require("../app");
-const { get } = require("../app");
 /* Set up your test imports here */
 
 beforeEach(() => {
 
-
+console.log("LOOOOOOOOK")
   return seed(data)
 })
 afterAll(() => {
@@ -31,6 +30,7 @@ describe("GET /api", () => {
 });
 describe("GET /api/topics", () => {
   test("To respond with topics ", () => {
+    console.log("LLLOOOOOOK")
     return request(app)
       .get("/api/topics")
       .expect(200)
@@ -42,6 +42,7 @@ describe("GET /api/topics", () => {
           expect(typeof topic.slug).toBe('string')
           expect(typeof topic.description).toBe('string')
         })
+        
       })
   })
 })
@@ -113,7 +114,7 @@ describe('Get all articles', () => {
       })
   });
 });
-describe.only("Get all comments for chosen article", () =>{
+describe("Get all comments for chosen article", () =>{
   test('respond with all article comments', () =>{
     return request(app)
     .get('/api/articles/1/comments')

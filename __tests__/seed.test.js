@@ -9,7 +9,7 @@ afterAll(() => db.end());
 
 
 
-describe.skip("tests to check common errors", () => {
+describe("tests to check common errors", () => {
   test("check all comments for a specific article have the correct article_id", () => {
     return db
       .query(`SELECT * FROM comments WHERE article_id = 3`)
@@ -95,7 +95,7 @@ describe.skip("tests to check common errors", () => {
 
 
 
-describe.skip('seed', () => {
+describe('seed', () => {
 
   describe('topics table', () => {
     test('topics table exists', () => {

@@ -27,19 +27,22 @@
   "devDependencies": {
     "jest": "^27.5.1",
     "jest-extended": "^2.0.0",
-    "jest-sorted": "^1.0.15"
+    "jest-sorted": "^1.0.15",
+    "supertest": "^7.0.0"
   },
   "dependencies": {
+    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "husky": "^8.0.2",
     "pg": "^8.13.3",
-    "pg-format": "^1.0.4",
-    "supertest": "^7.0.0",
-    "husky": "^8.0.2"
+    "pg-format": "^1.0.4"
+    
   },
   "jest": {
     "setupFilesAfterEnv": [
-      "jest-extended/all", "jest-sorted"
+      "jest-extended/all",
+      "jest-sorted"
     ]
   }
 }
