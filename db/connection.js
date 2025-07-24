@@ -13,9 +13,18 @@ if (!process.env.PGDATABASE && !process.env.DATABASE_URL) {
 
 if (ENV === "production") {
   config.connectionString = process.env.DATABASE_URL;
+  config.ssl = {
+    rejectUnauthorized: false,
+  };
   config.max = 2;
 }
-module.exports = new Pool(config);
+try {
+  module.exports = new Pool(config);
+  console.log('DEBUG: Database Pool successfully created.'); // ADD THIS LINE
+} catch (err) {
+  console.error('ERROR: Failed to create database Pool:', err); // ADD THIS LINE
+  throw err; // Re-throw to ensure the process fails if connection fails
+}
 
 
 /*const { Pool } = require("pg");

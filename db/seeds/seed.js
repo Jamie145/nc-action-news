@@ -35,9 +35,10 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
                 }).then(() => {
                   return insertUsers(userData)
                 }).then(() => {
+                  console.log("Inserted user Data successfully!");
                   return insertArticles(articleData)
                 }).then(({ rows }) => {
-
+                  console.log("Inserted article data  successfully!");
                   const lookUpArticleId = {}
                   rows.forEach(row => {
                     lookUpArticleId[row.title] = row.article_id

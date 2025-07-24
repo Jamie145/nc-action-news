@@ -120,7 +120,7 @@ describe("Get all comments for chosen article", () =>{
     .get('/api/articles/1/comments')
     .expect(200)
     .then(({body}) =>{
-      console.log(body)
+      //console.log(JSON.stringify(body, null, 2));
       body.comment.forEach((comment) =>{
         expect(comment).toHaveProperty('comment_id')
         expect(comment).toHaveProperty('body')
@@ -140,4 +140,26 @@ describe("Get all comments for chosen article", () =>{
       expect(body.message).toBe('Article not found')
     })
   })
+})
+describe('DELETE /api/comments/:comment_id', () => {
+  test('204: Deletes the specified comment and returns no content', () => {
+    return request(app)
+        .delete('/api/comments/5') // Using comment_id 5, which we know exists
+        .expect(204)
+        .then(({ body }) => {
+            expect(body).toEqual({}); // <--- CHANGE THIS from "" to {}
+        });
+});
+});
+describe('Filter articles by',() =>{
+  test('GET the articles in order of Title DESC', ()=>{
+    return request(app)
+    .get('/api/articles?sort_by=title&order=desc')
+    .expect(200)
+    .then(({body: {articles}}) =>{
+      expect(Array.isArray(articles)).toBe(true);
+      expect(articles).toBeSortedBy('title',{descending: true})
+    })
+  })
+
 })
