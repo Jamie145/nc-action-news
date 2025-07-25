@@ -109,12 +109,12 @@ exports.deleteCommentById = (req, res, next) => {
 
 exports.getArticles = (req, res, next) => {
     console.log('Controller: getArticles function entered.');
-    const { sort_by, order } = req.query; 
+    const { sort_by, order, topic, limit, p } = req.query; // Ensure all query params are destructured
 
-    
-    selectArticles(sort_by, order)
+    selectArticles(sort_by, order, topic, limit, p) // Ensure all params are passed
         .then((articles) => {
-            console.log('DEBUG: Titles sent from controller:', articles.map(a => a.title));
+            console.log('DEBUG: Articles ready to be sent:', articles.length, 'articles found.'); // ADD/VERIFY THIS LINE
+            console.log('DEBUG: First article (if any):', articles[0]); // ADD/VERIFY THIS LINE
             res.status(200).send({ articles });
         })
         .catch(next);

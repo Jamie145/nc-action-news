@@ -7,7 +7,7 @@ const data = require("../db/data/test-data");
 const app = require("../app");
 /* Set up your test imports here */
 
-beforeEach(() => {
+beforeAll(() => {
 
 console.log("LOOOOOOOOK")
   return seed(data)

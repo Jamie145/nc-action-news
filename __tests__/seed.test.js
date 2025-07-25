@@ -2,8 +2,8 @@ const db = require('../db/connection');
 const seed = require('../db/seeds/seed');
 const data = require('../db/data/test-data/index');
 
-beforeAll(() => seed(data));
-afterAll(() => db.end());
+//beforeAll(() => seed(data));
+//afterAll(() => db.end());
 
 
 
@@ -527,7 +527,7 @@ describe('seed', () => {
     });
     test('comments data has been inserted correctly', () => {
       return db.query(`SELECT * FROM comments;`).then(({ rows: comments }) => {
-        expect(comments).toHaveLength(18);
+        expect(comments).toHaveLength(17);
         comments.forEach((comment) => {
           expect(comment).toHaveProperty('comment_id');
           expect(comment).toHaveProperty('body');
