@@ -87,71 +87,74 @@ exports.fetchArticleById = (article_id) => {
 exports.selectArticles = (sort_by = 'created_at', order = 'desc', topic) => {
   // List of columns the user is allowed to sort by.
   const validSortByColumns = [
-      'article_id', 'title', 'topic', 'author', 'created_at', 'votes', 'comment_count'
+    'article_id', 'title', 'topic', 'author', 'created_at', 'votes', 'comment_count'
   ];
   // List of valid sort orders.
   const validOrderOptions = ['asc', 'desc'];
   const queryValues = [];
 
   // --- Input Validation ---
-  // Check if the provided sort_by and order parameters are valid.
   if (!validSortByColumns.includes(sort_by)) {
-      return Promise.reject({ status: 400, msg: 'Invalid sort_by query' });
+    return Promise.reject({ status: 400, msg: 'Invalid sort_by query' });
   }
   if (!validOrderOptions.includes(order)) {
-      return Promise.reject({ status: 400, msg: 'Invalid order query' });
+    return Promise.reject({ status: 400, msg: 'Invalid order query' });
   }
 
-  const lowerCaseColumns = ['title', 'topic', 'author'];
-  const orderByColumn = lowerCaseColumns.includes(sort_by) ? `LOWER(${sort_by})` : sort_by;
+  // Define which columns to apply LOWER() to for case-insensitive sorting.
+  const lowerCaseColumns = ['title', 'topic'];
+
+  let orderByColumn;
+  if (sort_by === 'comment_count') {
+    // Corrected logic: Use the alias 'comment_count' directly.
+    orderByColumn = 'comment_count';
+  } else if (lowerCaseColumns.includes(sort_by)) {
+    // For title and topic, apply LOWER() and use the table prefix.
+    orderByColumn = `LOWER(articles.${sort_by})`;
+  } else {
+    // THIS IS THE CORRECTED PART:
+    // For all other valid columns, explicitly use the articles table prefix.
+    orderByColumn = `articles.${sort_by}`;
+  }
 
   // --- SQL Query Construction ---
-  // Start with the base query to select all articles and their comment counts.
   let queryString = `
-      SELECT
-          articles.author,
-          articles.title,
-          articles.article_id,
-          articles.topic,
-          articles.created_at,
-          articles.votes,
-          articles.article_img_url,
-          COUNT(comments.comment_id) AS comment_count
-      FROM articles
-      LEFT JOIN comments ON articles.article_id = comments.article_id`;
+        SELECT
+            articles.author,
+            articles.title,
+            articles.article_id,
+            articles.topic,
+            articles.created_at,
+            articles.votes,
+            articles.article_img_url,
+            COUNT(comments.comment_id) AS comment_count
+        FROM articles
+        LEFT JOIN comments ON articles.article_id = comments.article_id`;
 
-  // --- NEW: Add a WHERE clause if a topic is provided.
-  // This is the crucial part that filters the articles.
   if (topic) {
-      queryString += `
-          WHERE articles.topic = $1`;
-      queryValues.push(topic);
+    queryString += `
+            WHERE articles.topic = $1`;
+    queryValues.push(topic);
   }
 
-  // Finish the query with GROUP BY and ORDER BY clauses.
   queryString += `
       GROUP BY
-          articles.author,
-          articles.title,
-          articles.article_id,
-          articles.topic,
-          articles.created_at,
-          articles.votes,
-          articles.article_img_url
+            articles.author,
+            articles.title,
+            articles.article_id,
+            articles.topic,
+            articles.created_at,
+            articles.votes,
+            articles.article_img_url
       ORDER BY ${orderByColumn} ${order};`;
 
-  console.log('DEBUG: sort_by (in model):', sort_by);
-  console.log('DEBUG: order (in model):', order);
-  console.log('DEBUG: topic (in model):', topic);
-  console.log('DEBUG: Generated Query String (in model):\n', queryString);
-  console.log('DEBUG: Query Values:', queryValues);
-
-  // --- Execute the Query ---
-  // The db.query() function safely executes the SQL string with the topic value.
-
-  console.log('DEBUG:', queryString);
+  // Execute the database query and return the results.
   return db.query(queryString, queryValues)
-      .then(({ rows }) => {
-          return rows;
-      });
+    .then(({ rows }) => {
+      return rows;
+    })
+    .catch((err) => {
+      console.error('DB Query Error:', err);
+      throw err;
+    });
 };
