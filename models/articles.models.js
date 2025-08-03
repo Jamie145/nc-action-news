@@ -84,12 +84,17 @@ exports.fetchArticleById = (article_id) => {
         });
 };
       
-exports.selectArticles = (sort_by = 'created_at', order = 'desc') => {
+exports.selectArticles = (sort_by = 'created_at', order = 'desc', topic) => {
+  // List of columns the user is allowed to sort by.
   const validSortByColumns = [
       'article_id', 'title', 'topic', 'author', 'created_at', 'votes', 'comment_count'
   ];
+  // List of valid sort orders.
   const validOrderOptions = ['asc', 'desc'];
+  const queryValues = [];
 
+  // --- Input Validation ---
+  // Check if the provided sort_by and order parameters are valid.
   if (!validSortByColumns.includes(sort_by)) {
       return Promise.reject({ status: 400, msg: 'Invalid sort_by query' });
   }
@@ -97,14 +102,12 @@ exports.selectArticles = (sort_by = 'created_at', order = 'desc') => {
       return Promise.reject({ status: 400, msg: 'Invalid order query' });
   }
 
-// This checks if the column is a string (like title, topic, author)
-    // If it is, it sorts using LOWER() for case-insensitivity.
-    const lowerCaseColumns = ['title', 'topic', 'author'];
-    const orderByColumn = lowerCaseColumns.includes(sort_by) ? `LOWER(${sort_by})` : sort_by;
+  const lowerCaseColumns = ['title', 'topic', 'author'];
+  const orderByColumn = lowerCaseColumns.includes(sort_by) ? `LOWER(${sort_by})` : sort_by;
 
-
-
-  const queryString = `
+  // --- SQL Query Construction ---
+  // Start with the base query to select all articles and their comment counts.
+  let queryString = `
       SELECT
           articles.author,
           articles.title,
@@ -115,7 +118,18 @@ exports.selectArticles = (sort_by = 'created_at', order = 'desc') => {
           articles.article_img_url,
           COUNT(comments.comment_id) AS comment_count
       FROM articles
-      LEFT JOIN comments ON articles.article_id = comments.article_id
+      LEFT JOIN comments ON articles.article_id = comments.article_id`;
+
+  // --- NEW: Add a WHERE clause if a topic is provided.
+  // This is the crucial part that filters the articles.
+  if (topic) {
+      queryString += `
+          WHERE articles.topic = $1`;
+      queryValues.push(topic);
+  }
+
+  // Finish the query with GROUP BY and ORDER BY clauses.
+  queryString += `
       GROUP BY
           articles.author,
           articles.title,
@@ -125,13 +139,18 @@ exports.selectArticles = (sort_by = 'created_at', order = 'desc') => {
           articles.votes,
           articles.article_img_url
       ORDER BY ${orderByColumn} ${order};`;
-      
 
-      console.log('DEBUG: sort_by (in model):', sort_by);
-console.log('DEBUG: order (in model):', order);
-console.log('DEBUG: Generated Query String (in model):\n', queryString);
+  console.log('DEBUG: sort_by (in model):', sort_by);
+  console.log('DEBUG: order (in model):', order);
+  console.log('DEBUG: topic (in model):', topic);
+  console.log('DEBUG: Generated Query String (in model):\n', queryString);
+  console.log('DEBUG: Query Values:', queryValues);
 
-  return db.query(queryString)
+  // --- Execute the Query ---
+  // The db.query() function safely executes the SQL string with the topic value.
+
+  console.log('DEBUG:', queryString);
+  return db.query(queryString, queryValues)
       .then(({ rows }) => {
           return rows;
       });
