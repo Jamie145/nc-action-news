@@ -73,12 +73,12 @@ exports.patchArticleByID = (request, response, next) => {
     }
 
     // Check for invalid inc_votes (e.g., missing or not a number)
-    if (typeof inc_votes !== 'number') { // <-- Added this crucial check
+    if (typeof inc_votes !== 'number') { 
         return next({ status: 400, msg: 'Bad Request' });
     }
 
     updateArticleById(inc_votes, article_id) // Order of arguments matches model
-    .then((article) => { // Changed 'result' to 'article' for clarity
+    .then((article) => { // 
         response.status(200).send({ article }); 
     })
     .catch((err) => {
@@ -109,12 +109,12 @@ exports.deleteCommentById = (req, res, next) => {
 
 exports.getArticles = (req, res, next) => {
     console.log('Controller: getArticles function entered.');
-    const { sort_by, order, topic, limit, p } = req.query; // Ensure all query params are destructured
+    const { sort_by, order, topic, limit, p } = req.query; // Destructuring params
 
-    selectArticles(sort_by, order, topic, limit, p) // Ensure all params are passed
+    selectArticles(sort_by, order, topic, limit, p) // All params are passed
         .then((articles) => {
-            console.log('DEBUG: Articles ready to be sent:', articles.length, 'articles found.'); // ADD/VERIFY THIS LINE
-            console.log('DEBUG: First article (if any):', articles[0]); // ADD/VERIFY THIS LINE
+            console.log('DEBUG: Articles ready to be sent:', articles.length, 'articles found.'); 
+            console.log('DEBUG: First article (if any):', articles[0]); 
             res.status(200).send({ articles });
         })
         .catch(next);

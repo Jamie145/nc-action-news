@@ -36,7 +36,7 @@ exports.fetchArticleById = (article_id) => {
   exports.addComment = (article_id, username, body) => {
     return db.query(
       'INSERT INTO comments (article_id, author, body) VALUES ($1, $2, $3) RETURNING *;',
-      [article_id, username, body] // This array holds the values for $1, $2, $3
+      [article_id, username, body] // Array holds the values for $1, $2, $3
     )
     .then(({ rows }) => {
       // The 'RETURNING *' in the SQL gives us an array with the new comment.
@@ -49,8 +49,8 @@ exports.fetchArticleById = (article_id) => {
     return db.query("UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *", [inc_votes, article_id]).then((result) =>{
       const article = result.rows[0]
 
-      if (article === undefined) { // Check if the article is undefined
-        //  We need to reject the promise
+      if (article === undefined) { 
+        
         return Promise.reject({ status: 404, msg: 'Article Not Found' });
       }
 
@@ -112,12 +112,12 @@ exports.selectArticles = (sort_by = 'created_at', order = 'desc', topic) => {
     // For title and topic, apply LOWER() and use the table prefix.
     orderByColumn = `LOWER(articles.${sort_by})`;
   } else {
-    // THIS IS THE CORRECTED PART:
+    
     // For all other valid columns, explicitly use the articles table prefix.
     orderByColumn = `articles.${sort_by}`;
   }
 
-  // --- SQL Query Construction ---
+  
   let queryString = `
         SELECT
             articles.author,
